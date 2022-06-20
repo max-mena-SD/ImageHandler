@@ -1,15 +1,12 @@
-# from ctypes import resize
-# from turtle import width
 from curses import panel
 import os
+from re import A
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QVBoxLayout, QWidget, QLabel
 from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtCore import Qt
-
-# from .tool_bar import #BarraTareas # la clase aun no esta creada
-
 from PIL import Image
-
+import bdjson
+import requests
 
 class MainWindowClass(QMainWindow):
     main_window_wide = None
@@ -59,28 +56,6 @@ class MainWindowClass(QMainWindow):
         self.image_tag = QLabel()
         disposition_panel.addWidget(self.image_tag)
 
-        
-    # borrar
-    def show_hide_task_bar(self):
-        pass
-    
-    # enable pop-up window to select a file, do not takes arguments, does not return values
-    def open_file(self):
-        print("ingresa a open file")
-        selected_file = QFileDialog.getOpenFileName(
-            self,
-            "Select a bdjson file: ",
-            self.path,
-            "Archivo bdJson (*.bdjson)"
-        )
-        selected_file = selected_file[0]
-
-        if not selected_file:
-            return
-        else:
-            self.image = Image.open(selected_file, 'r')
-            self.refresh_image()
-
     #
     def start_menu(self):
         main_menu = self.menuBar()
@@ -96,14 +71,62 @@ class MainWindowClass(QMainWindow):
 
         menu_option = main_menu.addMenu('Opciones')
         open_option = QAction("Abrir base de datos", menu_option)
-        open_option.triggered.connect(self.open_file)
+        open_option.triggered.connect(self.image_downloader)
         menu_option.addAction(open_option)
-        print("ultima linea Start Menu")
 
-    #
-    def resizeEvent():
+    # enable pop-up window to select a file, do not takes arguments, does not return values
+    def open_file(self): #verify file selected
+        image_dict = {}
+        selected_file = QFileDialog.getOpenFileName(
+            self,
+            "Select a bdjson file: ",
+            self.path,
+            "Archivo bdJson (*.bdjson)"
+        )
+        selected_file = selected_file[0]
+
+        if not selected_file:
+            return
+        else:
+            ## llamar una funcion que devuelva la imagen o la direccion
+            obje = bdjson.BdJson(selected_file)
+            image_dict = obje.separate_data_elements()
+            # print (image_dict[2]['url'] )
+            return image_dict
+         
+    # obtain images and name of it
+    def image_downloader(self):
+        image_dict = {}
+        image_dict = self.open_file()
+        url = ''
+        for image_url in image_dict:
+            try:
+                if image_url['url']:
+                    url = image_url['url']
+                    parms = {
+                        "auto": "compress",
+                        "cs": "tinysrgb",
+                        "w": 1260,
+                        "h": 750,
+                        "dpr" : 1
+                    }
+                    answer = requests.get(url, params=parms)
+            except KeyError as e:
+                image_name= "./images_downloaded/" + image_url['nombre'] + ".jpg"
+                with open(image_name, mode="wb") as imagen:
+                    imagen.write(answer.content)
+                # print("Error:", e.args ) #I have the feeling that this is not the proper way but I will investigate later
+                continue
+            except:
+                print("Unhandled error at image_downloader object")
+
+    # borrar
+    def resizeEvent(self, event):
         pass
 
-    #
+    # borrar
     def refresh_image(self):
+        pass
+    # borrar
+    def show_hide_task_bar(self):
         pass
