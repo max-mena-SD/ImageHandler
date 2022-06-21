@@ -33,22 +33,6 @@ class BdJson:
         return lineas
 
 #
-    # def separate_data_elements(self):
-    #     palabra = ''
-    #     new_line = dict()
-    #     dict_images= []
-    #     flag = False
-    #     lineas  = self.create_clean_list()
-    #     for line in lineas:
-
-    #         num = [pos for pos, char in enumerate(line) if char == '"']
-
-    #         key = line[ num[0]+1: num[1] ]
-    #         value = line[ num[2]+1: num[3] ]
-            
-    #         dict_images.append(key)
-    #         dict_images.append(value)
-    #     return dict_images
     def separate_data_elements(self):
         palabra = ''
         information_list= []

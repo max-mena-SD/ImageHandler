@@ -1,5 +1,6 @@
 from curses import panel
 import os
+from os.path import isfile, join
 from re import A
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QVBoxLayout, QWidget, QLabel
 from PySide6.QtGui import QAction, QPixmap
@@ -7,6 +8,7 @@ from PySide6.QtCore import Qt
 from PIL import Image
 import bdjson
 import requests
+
 
 class MainWindowClass(QMainWindow):
     main_window_wide = None
@@ -116,17 +118,40 @@ class MainWindowClass(QMainWindow):
                 with open(image_name, mode="wb") as imagen:
                     imagen.write(answer.content)
                 # print("Error:", e.args ) #I have the feeling that this is not the proper way but I will investigate later
+                self.open_image()# loads the image but just one
                 continue
             except:
                 print("Unhandled error at image_downloader object")
+            
+    #
+    def open_image(self):
+        images_path = "./images_downloaded"
+        image_list = []
 
-    # borrar
-    def resizeEvent(self, event):
-        pass
+        files_within = [img for img in os.listdir(images_path) if isfile(join(images_path, img))]
+        for img in files_within:
+            img_route= images_path+ "/" + img
+            image_list.append(Image.open(img_route))
+            image_show = QPixmap(img_route)
+            self.image_tag.setPixmap(image_show)
+            
+        return image_list
+        
 
-    # borrar
-    def refresh_image(self):
-        pass
-    # borrar
-    def show_hide_task_bar(self):
-        pass
+    # # borrar
+    # def refresh_image(self):
+    #     #formula para manipular la imagen que se muestro
+    #     image= self.open_image()
+    #     imagen_mostrar = QPixmap(image= image) #si envio la imagen original puede destrozar la interfaz
+    #     self.etiqueta_imagen.setPixmap(imagen_mostrar)
+
+    #
+    # def resizeEvent(self, event):
+    #     if self.imagen != None: self.refrescar_imagen()
+
+    #
+    def image_resize(self, images):
+        tall= images.height
+        wide= images.width
+        a, b,c,d = ((wide/2)*.5, (tall/2)*.5, wide*.5, tall*.5)
+        images = images.transform(size=(100,100), method= Image.EXTENT, data=(a,b,c,d))
