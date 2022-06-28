@@ -39,7 +39,8 @@ The name of the image will be displayed under the corresponding one, aligned to 
 - The file ***requirements.txt*** of your environment must be sent
 
 ### Unit tests
-Unit tests must be generated for the method that downloads the image.
+
+Check that the method that obtains the image does it successfully. [Need to extend the description]
 
 ---
 
@@ -63,4 +64,5 @@ Install *requeriments.txt* by using:
 ```python
     pip install -r requirements.txt
 ```
+
 
