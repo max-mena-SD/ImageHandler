@@ -1,6 +1,6 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from class_file.main_window import MainWindowClass
+from class_file.seg_main_window import MainWindowClass
 
 
 def main():
@@ -8,7 +8,7 @@ def main():
     app = QApplication([])
 
     monitor_size = app.screens()[len(app.screens())-1].size()#funciones
-    print(len(app.screens())-1)
+    # print(len(app.screens())-1)
 
     main_window= MainWindowClass("Mi aplicacion de imagenes desde la web", monitor_size)
 
