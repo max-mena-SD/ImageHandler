@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog, QVBoxLayout, QWidget, QL
 from PySide6.QtGui import QAction, QPixmap
 from PySide6.QtCore import Qt
 from PIL import Image
-import bdjson
+import json
 import requests
 
 
@@ -78,48 +78,38 @@ class MainWindowClass(QMainWindow):
 
     # enable pop-up window to select a file, do not takes arguments, does not return values
     def open_file(self): #verify file selected
-        image_dict = {}
+        image_list = None
         selected_file = QFileDialog.getOpenFileName(
             self,
             "Select a bdjson file: ",
             self.path,
             "Archivo bdJson (*.bdjson)"
         )
-        selected_file = selected_file[0]
 
+        selected_file = selected_file[0]
+        
         if not selected_file:
             return
         else:
-            ## llamar una funcion que devuelva la imagen o la direccion
-            obje = bdjson.BdJson(selected_file)
-            image_dict = obje.separate_data_elements()
-            # print (image_dict[2]['url'] )
-            return image_dict
+            with open (selected_file, "r") as json_file:
+                image_list = json_file.read()
+                image_list = json.loads(image_list)
+            return image_list
          
     # obtain images and name of it
     def image_downloader(self):
-        image_dict = {}
-        image_dict = self.open_file()
-        url = ''
-        for image_url in image_dict:
+        
+        image_list = self.open_file()
+
+        for image_data in image_list:
             try:
-                if image_url['url']:
-                    url = image_url['url']
-                    parms = {
-                        "auto": "compress",
-                        "cs": "tinysrgb",
-                        "w": 1260,
-                        "h": 750,
-                        "dpr" : 1
-                    }
-                    answer = requests.get(url, params=parms)
-            except KeyError as e:
-                image_name= "./images_downloaded/" + image_url['nombre'] + ".jpg"
+                answer = requests.get(image_data['url'])
+                image_name= "./images_downloaded/" + image_data['nombre'] + ".jpg"                    
                 with open(image_name, mode="wb") as imagen:
                     imagen.write(answer.content)
-                # print("Error:", e.args ) #I have the feeling that this is not the proper way but I will investigate later
-                # self.open_image()# loads the image but just one
-                continue
+
+            except KeyError as e:
+                print("Dictionary List error:", e.args)
             except:
                 print("Unhandled error at image_downloader object")
             
