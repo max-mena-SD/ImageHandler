@@ -1,5 +1,5 @@
 from curses import panel
-import os
+import os, glob
 from os.path import isfile, join
 from re import A
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QVBoxLayout, QWidget, QLabel
@@ -87,7 +87,7 @@ class MainWindowClass(QMainWindow):
         )
 
         selected_file = selected_file[0]
-        
+
         if not selected_file:
             return
         else:
@@ -103,15 +103,30 @@ class MainWindowClass(QMainWindow):
 
         for image_data in image_list:
             try:
-                answer = requests.get(image_data['url'])
+                params = {
+                        "auto": "compress",
+                        "cs": "tinysrgb",
+                        "w": 1260,
+                        "h": 750,
+                        "dpr" : 1
+                    }
+                answer = requests.get(image_data['url'], params=params)
                 image_name= "./images_downloaded/" + image_data['nombre'] + ".jpg"                    
                 with open(image_name, mode="wb") as imagen:
                     imagen.write(answer.content)
+                # self.open_image()# se agrega la imagen al label
 
             except KeyError as e:
                 print("Dictionary List error:", e.args)
             except:
                 print("Unhandled error at image_downloader object")
+        for img in os.listdir("./images_downloaded/"):
+            file, ext = os.path.splitext(img)
+            print (file,"++",ext)
+            with Image.open("./images_downloaded/"+img) as im:
+                im.thumbnail((100,100))
+                im.save("./images_downloaded/"+ file + "thumbnail.jpg", "JPEG")
+
             
     #
     def open_image(self):
@@ -121,18 +136,27 @@ class MainWindowClass(QMainWindow):
         # files_within = [img for img in os.listdir(images_path) if isfile(join(images_path,"/", img))] #seems unnecesary
         # for img in files_within:
 
-        for img in os.listdir(images_path):
-            img_route= images_path+ "/" + img
-            image_list.append(Image.open(img_route))
-            # image_show = QPixmap(img_route)
-            # self.image_tag.setPixmap(image_show)
-        print (len(image_list))
+        # for img in os.listdir(images_path):
+        #     img_route= images_path+ "/" + img
+        #     image_list.append(Image.open(img_route))
+        #     image_show = QPixmap(img_route)
+        #     self.image_tag.setPixmap(image_show)
         # return image_list
+        for infile in glob.glob("*.jpg"):
+            file, ext = os.path.splitext(infile)
+            with Image.open(infile) as im:
+                im.thumbnail((100,100))
+                im.save(file + ".thumbnail", "JPEG")
         
 
         #
     def image_resize(self, images):
-        tall= images.height
-        wide= images.width
-        a, b,c,d = ((wide/2)*.5, (tall/2)*.5, wide*.5, tall*.5)
-        images = images.transform(size=(100,100), method= Image.EXTENT, data=(a,b,c,d))
+        # tall= images.height
+        # wide= images.width
+        # a, b,c,d = ((wide/2)*.5, (tall/2)*.5, wide*.5, tall*.5)
+        # images = images.transform(size=(100,100), method= Image.EXTENT, data=(a,b,c,d))
+        for infile in glob.glob("*.jpg"):
+            file, ext = os.path.splitext(infile)
+            with Image.open(infile) as im:
+                im.thumbnail((100,100))
+                im.save(file + ".thumbnail", "JPEG")
