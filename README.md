@@ -38,10 +38,6 @@ The name of the image will be displayed under the corresponding one, aligned to 
 - Image processing should be done with the ``` Pillow ``` library in case it is necessary
 - The file ***requirements.txt*** of your environment must be sent
 
-### Unit tests
-
-Check that the method that obtains the image does it successfully. [Need to extend the description]
-
 ---
 
 ## Project setup
